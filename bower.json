@@ -1,0 +1,23 @@
+{
+  "name": "wifi-direct",
+  "version": "0.0.1",
+  "homepage": "https://github.com/gmarty/wifi-direct",
+  "authors": [
+    "Guillaume Marty <gmarty@mozilla.com>"
+  ],
+  "description": "",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "!.jshintrc",
+    "node_modules",
+    "package.json",
+    "README.md"
+  ],
+  "dependencies": {
+    "fxos-mvc": "git@github.com:fxos/mvc.git",
+    "fxos-web-server": "justindarc/fxos-web-server#v0.0.6"
+  },
+  "devDependencies": {}
+}
