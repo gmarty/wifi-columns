@@ -17,6 +17,8 @@ function displayError(error) {
 export default
 class MainController extends Controller {
   constructor() {
+    console.log('MainController#constructor()');
+
     this.settings = new Settings();
 
     this.controllers = {
@@ -48,8 +50,12 @@ class MainController extends Controller {
 
     // Set the device name.
     wifiP2pManager.setDeviceName(this.settings.peerName)
-      .then(() => {
-        console.log('wifiP2pManager#setDeviceName().then()', arguments);
+      .then(result => {
+        console.log('wifiP2pManager#setDeviceName().then()');
+
+        if (!result) {
+          displayError(new Error('The device name could not be set.'));
+        }
       })
       .catch(displayError);
 
@@ -88,7 +94,7 @@ class MainController extends Controller {
   enable() {
     wifiP2pManager.setScanEnabled(true)
       .then(result => {
-        console.log('wifiP2pManager#enable().then()', result);
+        console.log('wifiP2pManager#enable().then()');
 
         if (!result /*|| !wifiP2pManager.enabled*/) {
           displayError(new Error('wifiP2pManager activation failed.'));
@@ -125,10 +131,10 @@ class MainController extends Controller {
       case 'disconnected':
         wifiP2pManager.connect(peer.address, this.preferredWps, 1)
           .then(result => {
-            console.log('wifiP2pManager#connect().then()', result);
+            console.log('wifiP2pManager#connect().then()');
 
             if (!result) {
-              displayError(new Error('Could not connect to peer ' + peer.name + '.'));
+              displayError(new Error('Could not connect to ' + peer.name + '.'));
             }
           })
           .catch(displayError);
@@ -198,8 +204,6 @@ class MainController extends Controller {
                 address: dataset.address,
                 connectionStatus: dataset.connectionStatus
               };
-
-              console.log('peer', peer);
 
               this.toggleConnection(peer);
               break;
