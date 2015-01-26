@@ -1,17 +1,16 @@
 {
-  "name": "wifi-direct",
+  "name": "wifi-columns",
+  "description": "Play Columns with your friends locally and offline!",
   "version": "0.0.1",
-  "description": "",
-  "main": "index.js",
   "scripts": {},
   "repository": {
     "type": "git",
-    "url": "git://github.com/gmarty/wifi-direct.git"
+    "url": "git://github.com/gmarty/wifi-columns.git"
   },
   "author": "Guillaume Marty <gmarty@mozilla.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/gmarty/wifi-direct/issues"
+    "url": "https://github.com/gmarty/wifi-columns/issues"
   },
   "engines": {
     "node": "0.11.14"

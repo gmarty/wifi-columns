@@ -1,11 +1,11 @@
 {
-  "name": "wifi-direct",
+  "name": "wifi-columns",
+  "description": "Play Columns with your friends locally and offline!",
   "version": "0.0.1",
-  "homepage": "https://github.com/gmarty/wifi-direct",
+  "homepage": "https://github.com/gmarty/wifi-columns",
   "authors": [
     "Guillaume Marty <gmarty@mozilla.com>"
   ],
-  "description": "",
   "license": "MIT",
   "private": true,
   "ignore": [

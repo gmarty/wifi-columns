@@ -1,11 +1,11 @@
 {
-  "name": "WiFi Direct",
-  "description": "Drop the cloud, surf local",
+  "name": "Wi-Fi Columns",
+  "description": "Play Columns with your friends locally and offline!",
   "type": "certified",
   "launch_path": "/index.html",
   "developer": {
     "name": "Guillaume Marty <gmarty@mozilla.com>",
-    "url": "http://example.com"
+    "url": "http://gu.illau.me/"
   },
   "version": "0.0.1",
   "fullscreen": "true",
