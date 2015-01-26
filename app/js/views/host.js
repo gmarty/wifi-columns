@@ -1,8 +1,9 @@
 import { View } from 'components/fxos-mvc/dist/mvc';
 
 var template = `
-  <div>Connected as host</div>
-  <input type="button" value="Disconnect" class="disconnect">
+  <div class="emulator">
+    <input type="button" value="Disconnect" class="disconnect">
+  </div>
   `;
 
 export default

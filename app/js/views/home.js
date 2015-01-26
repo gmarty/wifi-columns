@@ -10,7 +10,7 @@ var noPeersTemplate = `
   `;
 
 var peersTemplate = peer => `
-  <input type="button" value="${peer.name} (${peer.connectionStatus})"
+  <input type="button" value="${peer.name}\n(${peer.connectionStatus})"
   data-name="${peer.name}"
   data-address="${peer.address}"
   data-connection-status="${peer.connectionStatus}">

@@ -24,7 +24,6 @@
     "fxos-build": "git://github.com/fxos/build#master",
     "gulp": "3.8.x",
     "del": "^1.1.0",
-    "gulp": "^3.8.10",
     "gulp-6to5": "^1.0.2",
     "gulp-bower": "^0.0.7",
     "gulp-concat": "^2.4.2",

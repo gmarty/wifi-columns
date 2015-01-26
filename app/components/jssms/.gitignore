@@ -1,0 +1,13 @@
+TODO.md
+jssms.min.html
+JavaGear_ME_v0.97s
+*.gz
+roms/sms
+roms/gg
+*.asm
+*.report.txt
+node_modules/
+.idea/
+min/static/
+static/
+sync.bin

@@ -17,7 +17,8 @@
   ],
   "dependencies": {
     "fxos-mvc": "git@github.com:fxos/mvc.git",
-    "fxos-web-server": "justindarc/fxos-web-server#v0.0.6"
+    "fxos-web-server": "justindarc/fxos-web-server#v0.0.6",
+    "jssms": "git@github.com:gmarty/jsSMS.git"
   },
   "devDependencies": {}
 }

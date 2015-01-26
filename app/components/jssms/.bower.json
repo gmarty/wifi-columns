@@ -1,0 +1,13 @@
+{
+  "name": "jssms",
+  "homepage": "https://github.com/gmarty/jsSMS",
+  "_release": "d6874ac781",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "d6874ac781b86e0874e807f3c4ed41e846b977ac"
+  },
+  "_source": "git@github.com:gmarty/jsSMS.git",
+  "_target": "*",
+  "_originalSource": "git@github.com:gmarty/jsSMS.git"
+}

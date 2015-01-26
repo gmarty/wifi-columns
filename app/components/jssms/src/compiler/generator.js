@@ -1,0 +1,353 @@
+/**
+ * jsSMS - A Sega Master System/Game Gear emulator in JavaScript
+ * Copyright (C) 2012  Guillaume Marty (https://github.com/gmarty)
+ * Based on JavaGear Copyright (c) 2002-2008 Chris White
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/* global n */
+/* exported Generator */
+
+'use strict';
+
+
+
+/**
+ * The generator cleans the data and returns a valid AST.
+ *
+ * @constructor
+ */
+var Generator = (function() {
+  var toHex = JSSMS.Utils.toHex;
+
+  /**
+   * These properties shouldn't be prepended with `this`.
+   * @const
+   */
+  var whitelist = [
+    'page', 'temp', 'location', 'val', 'value', 'JSSMS.Utils.rndInt'
+  ];
+
+  /**
+   * @param {Array.<number>} opcodes
+   * @return {number}
+   */
+  function getTotalTStates(opcodes) {
+    switch (opcodes[0]) {
+      case 0xCB:
+        return OP_CB_STATES[opcodes[1]];
+      case 0xDD:
+      case 0xFD:
+        if (opcodes.length === 2) {
+          return OP_DD_STATES[opcodes[1]];
+        }
+        return OP_INDEX_CB_STATES[opcodes[2]];
+      case 0xED:
+        return OP_ED_STATES[opcodes[1]];
+      default:
+        return OP_STATES[opcodes[0]];
+    }
+  }
+
+  /**
+   * Replace `Register` type with `Identifier`.
+   */
+  function convertRegisters(ast) {
+    var convertRegistersFunc = function(node) {
+      if (node.type === 'Register') {
+        node.type = 'Identifier';
+      }
+
+      return node;
+    };
+
+    return JSSMS.Utils.traverse(ast, convertRegistersFunc);
+  }
+
+  var Generator = function() {
+    this.ast = [];
+  };
+
+  Generator.prototype = {
+    /**
+     * Process bytecodes.
+     */
+    generate: function(functions) {
+      for (var page = 0; page < functions.length; page++) {
+        functions[page] = functions[page]
+          .map(function(fn) {
+              var body = [
+                {
+                  'type': 'ExpressionStatement',
+                  'expression': {
+                    'type': 'Literal',
+                    'value': 'use strict',
+                    'raw': '"use strict"'
+                  }
+                }
+              ];
+              var name = fn[0].address;
+              var tstates = 0;
+
+              fn = fn
+              .map(function(bytecode) {
+                    if (bytecode.ast === undefined) {
+                      bytecode.ast = [];
+                    }
+
+                    if (REFRESH_EMULATION) {
+                      // Sync server.
+                      var refreshEmulationStmt = {
+                        'type': 'ExpressionStatement',
+                        'expression': {
+                          'type': 'CallExpression',
+                          'callee': n.Identifier('incR'),
+                          'arguments': []
+                        }
+                      };
+                    }
+
+                    if (ENABLE_SERVER_LOGGER) {
+                      // Sync server.
+                      var syncServerStmt = {
+                        'type': 'ExpressionStatement',
+                        'expression': {
+                          'type': 'CallExpression',
+                          'callee': n.Identifier('sync'),
+                          'arguments': []
+                        }
+                      };
+                    }
+
+                    // Decrement tstates.
+                    tstates += getTotalTStates(bytecode.opcode);
+
+                    //if (bytecode.isFunctionEnder || bytecode.canEnd || bytecode.target != null) {
+                    var decreaseTStateStmt = [
+                      {
+                        'type': 'ExpressionStatement',
+                        'expression': {
+                          'type': 'AssignmentExpression',
+                          'operator': '-=',
+                          'left': {
+                            'type': 'Identifier',
+                            'name': 'tstates'
+                          },
+                          'right': {
+                            'type': 'Literal',
+                            'value': tstates,
+                            'raw': DEBUG ? toHex(tstates) : '' + tstates
+                          }
+                        }
+                      }
+                    ];
+
+                    tstates = 0;
+
+                    if (REFRESH_EMULATION) {
+                      decreaseTStateStmt = [].concat(refreshEmulationStmt, decreaseTStateStmt);
+                    }
+
+                    if (ENABLE_SERVER_LOGGER) {
+                      decreaseTStateStmt = [].concat(syncServerStmt, decreaseTStateStmt);
+                    }
+
+                    // Increment `page` statement.
+                    if (bytecode.changePage) {
+                      // page++;
+                      var updatePageStmt = {
+                        'type': 'ExpressionStatement',
+                        'expression': {
+                          'type': 'UpdateExpression',
+                          'operator': '++',
+                          'argument': {
+                            'type': 'Identifier',
+                            'name': 'page'
+                          },
+                          'prefix': false
+                        }
+                      };
+
+                      bytecode.ast = [].concat(updatePageStmt, bytecode.ast);
+                    }
+
+                    bytecode.ast = [].concat(decreaseTStateStmt, bytecode.ast);
+                    //}
+
+                    // Update `this.pc` statement.
+                    if ((ENABLE_SERVER_LOGGER || bytecode.isFunctionEnder) && bytecode.nextAddress !== null) {
+                      // this.pc = |nextAddress| + page * 0x4000;
+                      var nextAddress = bytecode.nextAddress % 0x4000;
+                      var updatePcStmt = {
+                        'type': 'ExpressionStatement',
+                        'expression': {
+                          'type': 'AssignmentExpression',
+                          'operator': '=',
+                          'left': {
+                            'type': 'Identifier',
+                            'name': 'pc'
+                          },
+                          'right': {
+                            'type': 'BinaryExpression',
+                            'operator': '+',
+                            'left': {
+                              'type': 'Literal',
+                              'value': nextAddress,
+                              'raw': DEBUG ? toHex(nextAddress) : '' + nextAddress
+                            },
+                            'right': {
+                              'type': 'BinaryExpression',
+                              'operator': '*',
+                              'left': {
+                                'type': 'Identifier',
+                                'name': 'page'
+                              },
+                              'right': {
+                                'type': 'Literal',
+                                'value': 0x4000,
+                                'raw': '0x4000'
+                              }
+                            }
+                          }
+                        }
+                      };
+
+                      bytecode.ast.push(updatePcStmt);
+                    }
+
+                    // Test tstates.
+                    /*var tStateCheck = {
+                      'type': 'IfStatement',
+                      'test': {
+                        'type': 'LogicalExpression',
+                        'operator': '&&',
+                        'left': {
+                          'type': 'BinaryExpression',
+                          'operator': '<=',
+                          'left': {
+                            'type': 'Identifier',
+                            'name': 'tstates'
+                          },
+                          'right': {
+                            'type': 'Literal',
+                            'value': 0,
+                            'raw': '0'
+                          }
+                        },
+                        'right': {
+                          'type': 'CallExpression',
+                          'callee': {
+                            'type': 'Identifier',
+                            'name': 'eol'
+                          },
+                          'arguments': []
+                        }
+                      },
+                      'consequent': {
+                        'type': 'BlockStatement',
+                        'body': [
+                          {
+                            'type': 'ReturnStatement',
+                            'argument': null
+                          }
+                        ]
+                      },
+                      'alternate': null
+                    };
+
+                 bytecode.ast.push(tStateCheck);*/
+
+                    if (DEBUG) {
+                      // Inline comment about the current bytecode.
+                      if (bytecode.ast[0]) {
+                        bytecode.ast[0].leadingComments = [
+                          {
+                            type: 'Line',
+                            value: ' ' + bytecode.label
+                          }
+                        ];
+                      }
+                    }
+
+                    return bytecode.ast;
+                  });
+
+              /*if (DEBUG && fn[0][0])
+                // Inject data about current branch into a comment.
+                fn[0][0].leadingComments = [].concat({
+                  type: 'Line',
+                  value: ' Nb of bytecodes jumping here: ' + fn[0].jumpTargetNb
+                }, fn[0][0].leadingComments);*/
+
+              // Flatten the array.
+              fn.forEach(function(ast) {
+                body = body.concat(ast);
+              });
+
+              // Apply modifications to the AST recursively.
+              body = convertRegisters(body);
+
+              // Append `this` to all identifiers.
+              body = JSSMS.Utils.traverse(body, function(obj) {
+                if (obj.type && obj.type === 'Identifier' && whitelist.indexOf(obj.name) === -1) {
+                  obj.name = 'this.' + obj.name;
+                }
+                return obj;
+              });
+
+              return {
+                'type': 'Program',
+                'body': [
+                  {
+                    'type': 'FunctionDeclaration',
+                    'id': {
+                      'type': 'Identifier',
+                      // Name of the function (i.e. starting index).
+                      'name': '_' + name
+                    },
+                    'params': [
+                      {
+                        'type': 'Identifier',
+                        'name': 'page'
+                      },
+                      {
+                        'type': 'Identifier',
+                        'name': 'temp'
+                      },
+                      {
+                        'type': 'Identifier',
+                        'name': 'location'
+                      }
+                    ],
+                    'defaults': [],
+                    'body': {
+                      'type': 'BlockStatement',
+                      'body': body
+                    },
+                    'rest': null,
+                    'generator': false,
+                    'expression': false
+                  }
+                ]
+              };
+            });
+      }
+
+      this.ast = functions;
+    }
+  };
+
+  return Generator;
+})();

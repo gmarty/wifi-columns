@@ -9,10 +9,10 @@ import Settings from 'js/models/settings';
 var wifiP2pManager = navigator.mozWifiP2pManager;
 var wifiManager = navigator.mozWifiManager;
 
-function displayError(error) {
+var displayError = error => {
   var message = (error.message || error.name || 'Unknown error');
   console.error(message);
-}
+};
 
 export default
 class MainController extends Controller {

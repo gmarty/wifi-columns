@@ -20,15 +20,8 @@ class GuestController extends Controller {
   init() {
     console.log('GuestController#init()');
 
-    // DEBUG
-    this.frame = document.createElement('iframe');
-    this.frame.mozbrowser = true;
-    this.frame.style = `
-        float: left;
-        width: 100%;
-        height: 50vw;
-      `;
-    this.view.el.appendChild(this.frame);
+    this.tainted = false;
+    this.src = '';
   }
 
   main() {
@@ -36,49 +29,44 @@ class GuestController extends Controller {
 
     this.view.setActive(true);
 
-    var refreshFrame = () => {
-      this.frame.src = 'http://' + wifiP2pManager.groupOwner.ipAddress + ':8080/';
-      //requestAnimationFrame(refreshFrame);
-    };
+    this.view.clearImage();
 
-    setTimeout(() => {
-      this.refreshInterval = setInterval(refreshFrame, 300);
-      refreshFrame();
-    }, 5000);
-
-    //var interval = setInterval(function() {
-    /*var xhr = new XMLHttpRequest({mozSystem: true, mozAnon: true});
-    xhr.open('get', 'http://' + wifiP2pManager.groupOwner.ipAddress + ':8080', true);
-    xhr.responseType = 'json';
-    xhr.onload = function(evt) {
-      console.log(evt);
-      if (xhr.readyState === 4 && xhr.status === 200) {
-        if (evt.target.response) {
-          var offer = evt.target.response;
-
-          if (offer.type !== 'offer') {
-            return;
-          }
-
-          //submitOffer(offer);
-          clearInterval(refreshFrameInterval);
-          //clearInterval(interval);
+    this.imageInterval = setInterval(() => {
+      var xhr = new XMLHttpRequest({mozSystem: true, mozAnon: true});
+      xhr.open('get', 'http://' + wifiP2pManager.groupOwner.ipAddress + ':8080');
+      xhr.addEventListener('load', () => {
+        if (xhr.readyState === 4 && xhr.status === 200 && xhr.response) {
+          this.src = xhr.response;
+          this.tainted = true;
+        } else {
+          console.error('Error getting the image data.');
         }
+      });
+      xhr.addEventListener('error', evt => {
+        console.log(evt);
+        throw new Error('There was an error in receiving data.');
+      });
+      xhr.send();
+    }, 300);
+
+    var updateSrc = () => {
+      if (this.tainted) {
+        this.view.image.src = this.src;
+        this.tainted = false;
       }
+      this.animation = requestAnimationFrame(updateSrc);
     };
-    xhr.onerror = function(evt) {
-      console.log(evt);
-      throw new Error('There was an error in receiving data.');
-    };
-    xhr.send();*/
-    //}, 3000);
+
+    updateSrc();
   }
 
   teardown() {
     console.log('GuestController#teardown()');
 
     this.view.setActive(false);
-    clearInterval(this.refreshInterval);
-    this.frame.src = '';
+
+    clearInterval(this.imageInterval);
+    cancelAnimationFrame(this.animation);
+    this.view.clearImage();
   }
 }

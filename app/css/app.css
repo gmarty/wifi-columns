@@ -1,11 +1,12 @@
 html, body {
   margin: 0;
   padding: 0;
+  font-size: 5vh;
 }
 
 body {
-  font-size: 1rem;
   background: #fff;
+  overflow: hidden;
 }
 
 body > section {
@@ -24,20 +25,17 @@ body > section.active {
   opacity: 1;
 }
 
-h1, h2 {
-  margin: 0 0 1rem 0;
-  color: firebrick;
-}
-
-p {
-  font-size: inherit;
-}
-
+/* Home view */
 input[type="button"] {
+  font-size: 1rem;
+  font-weight: 300;
   color: white;
+  background: darkslategrey;
+  border-top: 1px solid white;
+  border-right: 1px solid white;
   border-radius: 0;
-  width: 50vw;
-  height: 50vw;
+  width: 50vh;
+  height: 50vh;
   margin: 0;
   padding: 0;
   float: left;
@@ -57,14 +55,114 @@ div#peers {
   padding: 0;
 }
 
-div#peers > input {
+input[data-address] {
   background: firebrick;
 }
 
-div#peers > input:active {
+input[data-address]:active {
   background: indianred;
 }
 
+/* Host / Guest view */
+.emulator {
+  background: black;
+  height: 100vh;
+  position: relative;
+}
+
+.emulator > div {
+  width: 100%;
+  height: 100%;
+}
+
+.screen > canvas, .emulator > img {
+  image-rendering: -moz-crisp-edges;
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  /* Respect 4/3 aspect ratio: */
+  /*width: calc(100vh / 3 * 4);
+  left: calc(100vw / 2 - 100vh / 3 * 4 / 2);*/
+}
+
 input.disconnect {
-  background: darkslategrey;
+  background: white;
+  color: black;
+  border: none;
+  width: 30vh;
+  height: 15vh;
+  position: absolute;
+  top: 2vh;
+  right: 2vh;
+  opacity: 0.3;
+  z-index: 1;
+}
+
+.gamepad {
+  width: auto;
+  height: 100px;
+  position: relative;
+  top: calc(100% - 100px);
+  margin: 0 5vh;
+  opacity: 0.5;
+}
+
+.emulator > div.gamepad {
+  width: auto;
+  height: 100px;
+}
+
+div .direction {
+  width: 100px;
+  height: 100px;
+  transform: rotate(45deg);
+}
+
+div .direction > div,
+div .buttons > div {
+  width: 40px;
+  height: 40px;
+  float: left;
+  display: inline;
+  background: black;
+  border: 3px solid white;
+}
+
+.up, .down {
+  background: darkgrey;
+}
+
+.up {
+  border-radius: 100% 0 0 0;
+}
+
+.right {
+  border-radius: 0 100% 0 0;
+}
+
+.down {
+  border-radius: 0 0 100% 0;
+}
+
+.left {
+  border-radius: 0 0 0 100%;
+}
+
+div .buttons {
+  position: absolute;
+  right: 0;
+  top: 20px;
+}
+
+div .buttons .start {
+  background: darkblue;
+  border-radius: 0 100% 100% 0;
+  width: 25px;
+}
+
+.fire1, .fire2 {
+  background: grey;
+  margin-left: 10px;
+  border-radius: 100%;
 }

@@ -4,8 +4,7 @@ import { Controller } from 'components/fxos-mvc/dist/mvc';
 
 import HostView from 'js/views/host';
 
-//var wifiP2pManager = navigator.mozWifiP2pManager;
-//var wifiManager = navigator.mozWifiManager;
+import EmulatorUi from 'js/lib/emulatorUi';
 
 export default
 class HostController extends Controller {
@@ -24,29 +23,12 @@ class HostController extends Controller {
   init() {
     console.log('HostController#init()');
 
-    var canvas = document.createElement('canvas');
-    canvas.width = 256;
-    canvas.height = 192;
-    canvas.mozOpaque = true;
-
-    this.canvasContext = canvas.getContext('2d', {'alpha': false});
-    this.canvasContext.mozImageSmoothingEnabled = false;
-
-    var canvasImageData = this.canvasContext.getImageData(0, 0, 256, 192);
-    var data = canvasImageData.data;
-    for (var i = 0; i < 256 * 192 * 4; i = i + 4) {
-      data[i + 0] = Math.round(Math.random() * 256);
-      data[i + 1] = Math.round(Math.random() * 256);
-      data[i + 2] = Math.round(Math.random() * 256);
-      data[i + 3] = 0xFF;
-    }
-
-    this.canvasContext.putImageData(canvasImageData, 0, 0);
-    this.dataUrl = canvas.toDataURL();
-
-    /*var img = document.createElement('img');
-    img.src = this.dataUrl;
-    document.getElementById('home').appendChild(img);*/
+    // @todo Load the ROM file at startup but only instantiate JSSMS in main().
+    var JSSMS = window.JSSMS;
+    this.sms = new JSSMS({
+      ENABLE_COMPILER: false,
+      'ui': EmulatorUi
+    });
   }
 
   main() {
@@ -54,22 +36,18 @@ class HostController extends Controller {
 
     this.view.setActive(true);
 
+    this.sms.reloadRom();
+    this.sms.reset();
+    this.sms.vdp.forceFullRedraw();
+    this.sms.start();
+
+    var canvas = this.sms.ui.screen;
+
     this.httpServer.addEventListener('request', evt => {
       var response = evt.response;
 
-      console.log('Web server request event', evt);
-
       response['Content-Type'] = 'text/html';
-      response.send('<html><img src="' + this.dataUrl + '"></html>');
-
-      /*response.send('{' + '\n' +
-      'type:' + Math.round(Math.random() * 999) + ',' + '\n' +
-      'isLocal:' + wifiP2pManager.groupOwner.isLocal + ',' + '\n' +
-      'ipAddress:' + wifiP2pManager.groupOwner.ipAddress + ',' + '\n' +
-      'macAddress:' + wifiP2pManager.groupOwner.macAddress + ',' + '\n' +
-      'localMacAddress:' + wifiManager.macAddress + ',' + '\n' +
-      'peerName:' + this.settings.peerName + '' + '\n' +
-      '}');*/
+      response.send(canvas.toDataURL());
     });
 
     this.httpServer.start();
@@ -79,6 +57,8 @@ class HostController extends Controller {
     console.log('HostController#teardown()');
 
     this.view.setActive(false);
+
+    this.sms.stop();
     this.httpServer.stop();
   }
 }
