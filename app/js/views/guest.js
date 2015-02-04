@@ -1,12 +1,13 @@
 import { View } from 'components/fxos-mvc/dist/mvc';
 
 // A 1px × 1px black PNG encoded in base64.
-var blankScreen = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQIHWNgAAAAAgABz8g15QAAAABJRU5ErkJggg==';
+var blankScreen = 'data:image/png;base64,' +
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQIHWNgAAAAAgABz8g15QAAAABJRU5ErkJggg==';
 
 var template = `
   <div class="emulator">
     <input type="button" value="Disconnect" class="disconnect">
-    <img src="${blankScreen}">
+    <img src="">
     <div class="gamepad">
       <div class="direction">
         <div class="up"></div><div class="right"></div><div class="left"></div><div class="down"></div>
@@ -37,6 +38,8 @@ class GuestView extends View {
     this.disconnect = this.$('input.disconnect');
     this.emulator = this.$('.emulator');
     this.image = this.$('.emulator > img');
+
+    this.clearImage();
   }
 
   render() {
