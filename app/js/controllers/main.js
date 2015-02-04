@@ -65,6 +65,7 @@ class MainController extends Controller {
 
       if (request.wpsMethod !== this.preferredWps) {
         displayError(new Error('Uncompatible pairing method: ' + request.wpsMethod + '.'));
+        return;
       }
 
       wifiP2pManager.setPairingConfirmation(true, '');
@@ -98,6 +99,7 @@ class MainController extends Controller {
 
         if (!result /*|| !wifiP2pManager.enabled*/) {
           displayError(new Error('wifiP2pManager activation failed.'));
+          return;
         }
 
         this.getPeerList();
