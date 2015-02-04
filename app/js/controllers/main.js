@@ -97,7 +97,7 @@ class MainController extends Controller {
       .then(result => {
         console.log('wifiP2pManager#enable().then()');
 
-        if (!result /*|| !wifiP2pManager.enabled*/) {
+        if (!result || !wifiP2pManager.enabled) {
           displayError(new Error('wifiP2pManager activation failed.'));
           return;
         }
