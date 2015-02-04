@@ -48,16 +48,7 @@ class MainController extends Controller {
     // Set the WPS method.
     wifiManager.wps({method: this.preferredWps});
 
-    // Set the device name.
-    wifiP2pManager.setDeviceName(this.settings.peerName)
-      .then(result => {
-        console.log('wifiP2pManager#setDeviceName().then()');
-
-        if (!result) {
-          displayError(new Error('The device name could not be set.'));
-        }
-      })
-      .catch(displayError);
+    this.setDeviceName();
 
     // Listen to pairing request messages.
     navigator.mozSetMessageHandler('wifip2p-pairing-request', request => {
@@ -103,6 +94,21 @@ class MainController extends Controller {
         }
 
         this.getPeerList();
+      })
+      .catch(displayError);
+  }
+
+  /**
+   * Set the device name.
+   */
+  setDeviceName() {
+    wifiP2pManager.setDeviceName(this.settings.peerName)
+      .then(result => {
+        console.log('wifiP2pManager#setDeviceName().then()');
+
+        if (!result) {
+          displayError(new Error('The device name could not be set.'));
+        }
       })
       .catch(displayError);
   }
