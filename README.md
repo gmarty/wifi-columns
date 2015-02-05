@@ -1,4 +1,4 @@
-# Wi-Fi Columns
+# ![Wi-Fi Columns](https://raw.githubusercontent.com/gmarty/wifi-columns/master/app/img/icons/32.png "Wi-Fi Columns") Wi-Fi Columns
 
 Play Columns with your friends locally, no Internet connection required!
 
