@@ -4,23 +4,23 @@ export default
 class Settings extends Model {
   constructor() {
     var properties = {
-      peerName: '',
+      deviceName: '',
       peers: []
     };
     super(properties);
 
-    this.peerName = localStorage.getItem('peerName');
-    if (!this.peerName) {
-      this.setPeerName(this.getRandomPeerName());
+    this.deviceName = localStorage.getItem('deviceName');
+    if (!this.deviceName) {
+      this.setDeviceName(this.getRandomName());
     }
   }
 
-  setPeerName(peerName) {
-    this.peerName = peerName;
-    localStorage.setItem('peerName', peerName);
+  setDeviceName(deviceName) {
+    this.deviceName = deviceName;
+    localStorage.setItem('deviceName', deviceName);
   }
 
-  getRandomPeerName() {
+  getRandomName() {
     var length = 2;
     var base = 36;
     return 'Peer ' + Math.round((Math.random() * Math.pow(base, length)))

@@ -102,7 +102,7 @@ class MainController extends Controller {
    * Set the device name.
    */
   setDeviceName() {
-    wifiP2pManager.setDeviceName(this.settings.peerName)
+    wifiP2pManager.setDeviceName(this.settings.deviceName)
       .then(result => {
         console.log('wifiP2pManager#setDeviceName().then()');
 
