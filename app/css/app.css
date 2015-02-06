@@ -34,8 +34,8 @@ input[type="button"] {
   border-top: 1px solid white;
   border-right: 1px solid white;
   border-radius: 0;
-  width: 50vh;
-  height: 50vh;
+  width: calc(50vh - 1px);
+  height: calc(50vh - 1px);
   margin: 0;
   padding: 0;
   float: left;
