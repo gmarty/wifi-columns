@@ -32,6 +32,8 @@ class HomeView extends View {
 
     this.getPeersList = this.$('#get-peers');
     this.peersList = this.$('#peers');
+
+    this.renderPeer();
   }
 
   render() {
@@ -49,7 +51,7 @@ class HomeView extends View {
   }
 
   // Called whenever settings.peers changes.
-  renderPeer(peers) {
+  renderPeer(peers = []) {
     console.log('HomeView#renderPeer()', peers);
 
     // Clear child elements.
