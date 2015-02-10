@@ -86,7 +86,7 @@ class MainController extends Controller {
   enable() {
     wifiP2pManager.setScanEnabled(true)
       .then(result => {
-        console.log('wifiP2pManager#enable().then()');
+        console.log('wifiP2pManager#setScanEnabled().then()');
 
         if (!result || !wifiP2pManager.enabled) {
           displayError(new Error('wifiP2pManager activation failed.'));
