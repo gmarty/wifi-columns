@@ -1364,9 +1364,16 @@ define(["exports"], function (exports) {
       var innerHTML = "";
 
       if (params) {
-        for (var i = 0; i < params.length; i++) {
-          var param = params[i];
-          innerHTML += this.template(param);
+        if (typeof params === "object") {
+          for (var index in params) {
+            var param = params[index];
+            innerHTML += this.template(param);
+          }
+        } else {
+          for (var i = 0; i < params.length; i++) {
+            var param = params[i];
+            innerHTML += this.template(param);
+          }
         }
       } else {
         innerHTML = this.template();
@@ -1387,7 +1394,10 @@ define(["exports"], function (exports) {
       return this.el.querySelectorAll(selector);
     };
 
-    View.prototype.on = function (type, selector, handler) {
+    View.prototype.on = function (type, selector, handler, scope) {
+      var controller = this.controller;
+      scope = scope || this.el;
+
       if (!events[type]) {
         events[type] = [];
         window.addEventListener(type, delegateHandler, true);
@@ -1395,7 +1405,9 @@ define(["exports"], function (exports) {
 
       events[type].push({
         selector: selector,
-        handler: handler
+        handler: handler,
+        controller: controller,
+        scope: scope
       });
     };
 
@@ -1419,12 +1431,27 @@ define(["exports"], function (exports) {
   exports.View = View;
 
 
+  /**
+   * Forward an event based on the target's `[data-action]` attr to the controller.
+   * e.g. "click" on a `<button data-action="cancel">` goes to controller.cancel()
+   */
+  function handleAction(event, controller) {
+    var action = event.target.dataset.action;
+    if (controller && controller[action]) {
+      controller[action](event);
+    }
+  }
+
   function delegateHandler(event) {
     var target = event.target;
 
     events[event.type].forEach(function (delegate) {
-      if (target.matches(delegate.selector)) {
-        delegate.handler.call(target, event);
+      if (delegate.scope.contains(target) && target.matches(delegate.selector)) {
+        if (delegate.handler) {
+          delegate.handler.call(target, event);
+        } else {
+          handleAction(event, delegate.controller);
+        }
       }
     });
   }
@@ -1454,9 +1481,15 @@ define(["exports"], function (exports) {
   exports.Controller = Controller;
   var RoutingController = (function (Controller) {
     var RoutingController = function RoutingController(controllers) {
+      if (window.routingController) {
+        console.error("Document can only contain one RoutingController");
+        return;
+      }
+
       Controller.call(this);
-      this.controllers = controllers;
+      this._controllers = controllers;
       this.activeController = null;
+      window.routingController = this;
       window.addEventListener("hashchange", this.route.bind(this));
     };
 
@@ -1464,7 +1497,7 @@ define(["exports"], function (exports) {
 
     RoutingController.prototype.route = function () {
       var route = window.location.hash.slice(1);
-      var controller = this.controllers[route];
+      var controller = this._controllers[route];
       if (controller) {
         if (this.activeController) {
           this.activeController.teardown();
@@ -1475,8 +1508,68 @@ define(["exports"], function (exports) {
       }
     };
 
+    RoutingController.prototype.controller = function (id) {
+      return this._controllers[id];
+    };
+
     return RoutingController;
   })(Controller);
 
   exports.RoutingController = RoutingController;
+  var Service = (function () {
+    var Service = function Service() {
+      this._listeners = {};
+      this._dispatchedEvents = {};
+    };
+
+    Service.prototype.addEventListener = function (name, callback, trigger) {
+      var _this2 = this;
+      if (!this._listeners[name]) {
+        this._listeners[name] = [callback];
+      } else {
+        this._listeners[name].push(callback);
+      }
+
+      if (trigger && this._dispatchedEvents[name] !== undefined) {
+        setTimeout(function () {
+          callback(_this2._dispatchedEvents[name]);
+        });
+      }
+    };
+
+    Service.prototype.removeEventListener = function (name, callback) {
+      if (!this._listeners[name]) {
+        return;
+      }
+
+      var listenerIndex;
+      this._listeners[name].find(function (listener, index) {
+        if (listener === callback) {
+          listenerIndex = index;
+        }
+
+        return listenerIndex !== undefined;
+      });
+
+      if (listenerIndex !== undefined) {
+        this._listeners[name].splice(listenerIndex, 1);
+      }
+    };
+
+    Service.prototype._dispatchEvent = function (name, params) {
+      if (!this._listeners[name]) {
+        return;
+      }
+
+      this._dispatchedEvents[name] = params || null;
+
+      this._listeners[name].forEach(function (listener) {
+        listener(params);
+      });
+    };
+
+    return Service;
+  })();
+
+  exports.Service = Service;
 });
