@@ -119,8 +119,8 @@ input.disconnect {
 }
 
 div .direction {
-  width: 100px;
-  height: 100px;
+  width: 91px;
+  height: 91px;
   transform: rotate(45deg);
 }
 
