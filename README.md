@@ -18,3 +18,7 @@ following resources to know more:
 
 * An [article I wrote for Mozilla Hacks](https://hacks.mozilla.org/2015/01/the-p2p-web-wi-fi-direct-in-firefox-os/)
 * The page about [MozWifiP2pManager](https://developer.mozilla.org/en-US/docs/Web/API/MozWifiP2pManager) on MDN
+
+## Demo
+
+[![Demo of Wi-Fi Columns](https://img.youtube.com/vi/HAuXWPS5rwA/0.jpg)](//youtu.be/HAuXWPS5rwA)
