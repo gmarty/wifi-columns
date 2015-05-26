@@ -3,6 +3,7 @@ import { Controller } from 'components/fxos-mvc/dist/mvc';
 import HomeController from 'js/controllers/home';
 import HostController from 'js/controllers/host';
 import GuestController from 'js/controllers/guest';
+import ErrorController from 'js/controllers/error';
 
 import Settings from 'js/models/settings';
 
@@ -24,7 +25,8 @@ class MainController extends Controller {
     this.controllers = {
       home: new HomeController({settings: this.settings}),
       host: new HostController(),
-      guest: new GuestController()
+      guest: new GuestController(),
+      error: new ErrorController()
     };
 
     this.preferredWps = 'pbc';
@@ -34,6 +36,10 @@ class MainController extends Controller {
 
   init() {
     console.log('MainController#init()');
+
+    if (!wifiP2pManager || !wifiManager) {
+      return;
+    }
 
     // Attach event listeners.
     wifiP2pManager.addEventListener('statuschange', this);
@@ -65,6 +71,11 @@ class MainController extends Controller {
 
   main() {
     console.log('MainController#main()');
+
+    if (!wifiP2pManager || !wifiManager) {
+      this.setActiveController('error');
+      return;
+    }
 
     this.enable();
     this.setActiveController('home');
