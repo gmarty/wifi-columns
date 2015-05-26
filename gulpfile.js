@@ -16,6 +16,7 @@ var jshint = require(buildModules + 'gulp-jshint');
 var zip = require(buildModules + 'gulp-zip');
 var del = require(buildModules + 'del');
 var runSequence = require(buildModules + 'run-sequence');
+var webserver = require(buildModules + 'gulp-webserver');
 
 const APP_ROOT = './app/';
 const DIST_ROOT = './dist/';
@@ -50,8 +51,8 @@ gulp.task('loader-polyfill', function () {
  */
 gulp.task('copy-app', function() {
   return gulp.src([
-      APP_ROOT + '**',
-      '!' + APP_ROOT + 'js/**/*.js' // do not copy js
+    APP_ROOT + '**',
+    '!' + APP_ROOT + 'js/**/*.js' // do not copy js
     ])
     .pipe(gulp.dest(DIST_APP_ROOT));
 });
@@ -62,7 +63,7 @@ gulp.task('copy-app', function() {
 gulp.task('to5', function () {
   var files = [
     APP_ROOT + 'js/**/*.js',
-  ];
+    ];
 
   try {
     return gulp.src(files)
@@ -73,7 +74,7 @@ gulp.task('to5', function () {
         })
       )
       .pipe(gulp.dest(DIST_APP_ROOT + 'js/'));
-  } catch(e) {
+  }  catch(e) {
     console.log('Got error in 6to5', e);
   }
 });
@@ -106,12 +107,23 @@ gulp.task('watch', function() {
   gulp.watch([APP_ROOT + '**'], ['build']);
 });
 
+gulp.task('webserver', function() {
+  gulp.src('dist/app')
+    .pipe(webserver({
+      port: process.env.PORT || 8000,
+      host: process.env.HOSTNAME || 'localhost',
+      livereload: false,
+      directoryListing: false,
+      open: false
+    }));
+});
+
 /**
  * The default task when `gulp` is run.
  * Adds a listener which will re-build on a file save.
  */
 gulp.task('default', function() {
-  runSequence('build', 'watch');
+  runSequence('build', 'webserver', 'watch');
 });
 
 /**

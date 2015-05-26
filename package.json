@@ -21,13 +21,6 @@
   "dependencies": {},
   "devDependencies": {
     "fxos-build": "git://github.com/fxos/build#master",
-    "gulp": "3.8.x",
-    "del": "^1.1.0",
-    "gulp-6to5": "^1.0.2",
-    "gulp-bower": "^0.0.7",
-    "gulp-concat": "^2.4.2",
-    "gulp-jshint": "^1.9.0",
-    "run-sequence": "^1.0.2",
-    "gulp-zip": "^2.0.2"
+    "gulp": "3.8.x"
   }
 }
