@@ -58,6 +58,63 @@ class GuestController extends Controller {
     };
 
     updateSrc();
+
+    var sendAction = action => {
+      var xhr = new XMLHttpRequest({mozSystem: true, mozAnon: true});
+      xhr.open('get', 'http://' + wifiP2pManager.groupOwner.ipAddress + ':8080/gamepad?action=' + action);
+      xhr.addEventListener('load', () => {
+        if (xhr.readyState === 4 && xhr.status === 200 && xhr.response) {
+        } else {
+          console.error('Error posting action command.');
+        }
+      });
+      xhr.addEventListener('error', evt => {
+        console.log(evt);
+        throw new Error('There was an error in posting data.');
+      });
+      xhr.send();
+    };
+
+    //send ajax request for gamepad actions
+    var gamepad = {
+      up: 0x01,
+      down: 0x02,
+      left: 0x04,
+      right: 0x08,
+      fire1: 0x10,
+      fire2: 0x20,
+      start: 0x40
+    };
+
+    var gamepadContainer = this.view.el.querySelector('.gamepad');
+    // Software buttons - touch
+    var onTouchStart = evt => {
+      sendAction('');
+
+      var changedTouches = evt.changedTouches;
+
+      for (var i = 0; i < changedTouches.length; i++) {
+        var target = document.elementFromPoint(changedTouches[i].clientX, changedTouches[i].clientY);
+        var className = target.className;
+
+        if (!className || !gamepad[className]) {
+          continue;
+        }
+
+        sendAction(className);
+      }
+
+      evt.preventDefault();
+    };
+
+    var onTouchEnd = () => {
+      sendAction('');
+    };
+
+    gamepadContainer.addEventListener('touchstart', onTouchStart);
+    gamepadContainer.addEventListener('touchmove', onTouchStart);
+    gamepadContainer.addEventListener('touchend', onTouchEnd);
+
   }
 
   teardown() {
