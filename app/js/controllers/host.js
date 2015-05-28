@@ -43,14 +43,15 @@ class HostController extends Controller {
 
     var canvas = this.sms.ui.screen;
 
+    //FIXME: find the correct key mapping?
     var gamepad = {
       up: 0x01,
       down: 0x02,
-      left: 0x04,
-      right: 0x08,
-      fire1: 0x10,
-      fire2: 0x20,
-      start: 0x40
+      left: 0x01,
+      right: 0x02,
+      fire1: 0x08,
+      fire2: 0x04,
+      start: 0x10
     };
     var sms = this.sms;
 
