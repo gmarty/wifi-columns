@@ -7,13 +7,12 @@ var blankScreen = 'data:image/png;base64,' +
 var template = `
   <div class="emulator">
     <input type="button" value="Disconnect" class="disconnect">
-    <img src="">
+    <img src="${blankScreen}">
     <div class="gamepad">
       <div class="direction">
         <div class="up"></div><div class="right"></div><div class="left"></div><div class="down"></div>
       </div>
       <div class="buttons">
-        <div class="start"></div>
         <div class="fire1"></div>
         <div class="fire2"></div>
       </div>
@@ -36,6 +35,7 @@ class GuestView extends View {
     this.render();
 
     this.disconnect = this.$('input.disconnect');
+    this.gamepadContainer = this.$('.gamepad');
     this.emulator = this.$('.emulator');
     this.image = this.$('.emulator > img');
 

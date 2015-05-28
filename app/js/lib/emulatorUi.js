@@ -17,7 +17,6 @@ class EmulatorUi {
           <div class="up"></div><div class="right"></div><div class="left"></div><div class="down"></div>
         </div>
         <div class="buttons">
-          <div class="start"></div>
           <div class="fire1"></div>
           <div class="fire2"></div>
         </div>
@@ -45,8 +44,7 @@ class EmulatorUi {
       left: 0x04,
       right: 0x08,
       fire1: 0x10,
-      fire2: 0x20,
-      start: 0x40
+      fire2: 0x20
     };
 
     // Software buttons - touch

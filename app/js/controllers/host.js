@@ -6,6 +6,15 @@ import HostView from 'js/views/host';
 
 import EmulatorUi from 'js/lib/emulatorUi';
 
+const P2_GAMEPAD = {
+  up: 0x40,
+  down: 0x80,
+  left: 0x01,
+  right: 0x02,
+  fire1: 0x04,
+  fire2: 0x08
+};
+
 export default
 class HostController extends Controller {
   constructor() {
@@ -34,8 +43,6 @@ class HostController extends Controller {
   main() {
     console.log('HostController#main()');
 
-    this.view.setActive(true);
-
     this.sms.reloadRom();
     this.sms.reset();
     this.sms.vdp.forceFullRedraw();
@@ -45,12 +52,29 @@ class HostController extends Controller {
 
     this.httpServer.addEventListener('request', evt => {
       var response = evt.response;
+      var action = evt.request.params.a;
 
       response['Content-Type'] = 'text/html';
+
+      if (action) {
+        // Gamepad key pressed received from player 2.
+        if (!action || !P2_GAMEPAD[action]) {
+          this.sms.keyboard.controller2 = 0xFF;
+        } else {
+          this.sms.keyboard.controller2 &= ~P2_GAMEPAD[action];
+        }
+
+        response.send('');
+        return;
+      }
+
+      // Otherwise, we send an image of the screen.
       response.send(canvas.toDataURL());
     });
 
     this.httpServer.start();
+
+    this.view.setActive(true);
   }
 
   teardown() {
@@ -58,7 +82,7 @@ class HostController extends Controller {
 
     this.view.setActive(false);
 
-    this.sms.stop();
     this.httpServer.stop();
+    this.sms.stop();
   }
 }
