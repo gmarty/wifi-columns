@@ -52,6 +52,7 @@ class HostController extends Controller {
       fire2: 0x20,
       start: 0x40
     };
+    var sms = this.sms;
 
     this.httpServer.addEventListener('request', evt => {
       var request = evt.request;
@@ -62,10 +63,10 @@ class HostController extends Controller {
         //receive gamepad action and send it to sms
         var action = request.params.action;
         if (!action || !gamepad[action]) {
-          this.sms.keyboard.controller2 = 0xFF;
+          sms.keyboard.controller2 = 0xFF;
         }
         else {
-          this.sms.keyboard.controller2 &= ~gamepad[action];
+          sms.keyboard.controller2 &= ~gamepad[action];
         }
         response['Content-Type'] = 'text/html';
         response.send('');
